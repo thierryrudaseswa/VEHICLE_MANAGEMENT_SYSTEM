@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN // The application admin
+  USER // This is a compuser
+
+  @@map("roles")
+}
+
+enum VerificationStatus {
+  VERIFIED
+  PENDING
+  UNVERIFIED
+
+  @@map("verification_status")
+}
+
+enum PasswordResetStatus {
+  PENDING
+  IDLE
+
+  @@map("password_reset_status")
+}
+
+enum ActionType {
+  BOOK
+  USE
+  RETURN
+
+  @@map("action_types")
+}
+
+model User {
+  id                   String              @id @default(uuid())
+  names                String
+  email                String              @unique
+  telephone            String?             @unique
+  password             String
+  profilePicture       String              @default("https://firebasestorage.googleapis.com/v0/b/relaxia-services.appspot.com/o/relaxia-profiles%2Fblank-profile-picture-973460_960_720.webp?alt=media") @map("profile_picture")
+  role                 Role                @default(USER)
+  verificationStatus   VerificationStatus  @default(UNVERIFIED) @map("verification_status")
+  verificationCode     String?             @map("verification_code")
+  verificationExpires  DateTime?           @map("verification_expires")
+  passwordResetStatus  PasswordResetStatus @default(IDLE) @map("password_reset_status")
+  passwordResetCode    String?             @map("password_reset_code")
+  passwordResetExpires DateTime?           @map("password_reset_expires")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+  actions               Action[]
+
+  @@map("users")
+}
+
+model VehicleModel {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  brand    String
+  vehicles Vehicle[]
+
+  @@map("vehicle_models")
+}
+
+model Vehicle {
+  id          String       @id @default(uuid())
+  plateNumber String       @unique @map("plate_number")
+  color       String
+  modelId     String       @map("model_id")
+  model       VehicleModel @relation(fields: [modelId], references: [id])
+  isAvailable Boolean      @default(true) @map("is_available")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  actions     Action[]
+
+  @@map("vehicles")
+}
+
+model Action {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  vehicleId  String   @map("vehicle_id")
+  actionType ActionType @map("action_type")
+  timestamp  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id])
+
+  @@map("actions")
+}
