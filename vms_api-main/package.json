@@ -5,10 +5,10 @@
   "main": "app.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec ts-node src/app.ts",
+    "dev": "node init && nodemon --exec ts-node src/app.ts",
     "generate-swagger": "nodemon --exec ts-node src/swagger/index.ts  --ignore src/swagger/doc/swagger.json",
-    "start": "ts-node src/app.ts",
-    "build": "tsc",
+    "start": "node init && ts-node src/app.ts",
+    "build": "node init && tsc",
     "serve": "npx ts-node src/swagger/index.ts",
     "prisma:gen": "npx prisma generate --schema src/prisma/schema.prisma",
     "prisma:migrate": "npx prisma migrate dev --schema=./src/prisma/schema.prisma --name=init",
